@@ -1,8 +1,14 @@
-const { Telegraf } = require('telegraf')
+const Composer = require('telegraf/composer')
+const session = require('telegraf/session')
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start((ctx) => ctx.reply('Welcome'))
-bot.help((ctx) => ctx.reply('Send me a sticker'))
-bot.on('sticker', (ctx) => ctx.reply('👍'))
-bot.hears('hi', (ctx) => ctx.reply('Hey there'))
-bot.launch()
+const bot = new Composer()
+
+bot.use(session())
+
+bot.start(({ reply }) => reply('Welcome message'))
+bot.help(({ reply }) => reply('bruh message'))
+bot.settings(({ reply }) => reply('Bot settings'))
+
+bot.command('date', ({ reply }) => reply(`Server time: ${Date()}`))
+
+module.exports = bot
