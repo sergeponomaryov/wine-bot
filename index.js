@@ -19,53 +19,27 @@ let keyboards = {1: createKeyboard(main), 2: createKeyboard(secondary), 3: creat
 function createKeyboard(ingredients) {
     let keyboard = new Keyboard({inline: true});
     for (i = 0; i < ingredients.length; i++) {
-        keyboard.add(`${ingredients[i].label}:${ingredients[i].id}`, `${ingredients[i+1].label}:${ingredients[i+1].id}`)
+        // rewrite this india a bit
+        let add = [`${ingredients[i].label}:${ingredients[i].id}`];
+        if(ingredients[i+1] !== undefined) add.push(`${ingredients[i+1].label}:${ingredients[i+1].id}`);
+
+        keyboard.add(add)
         i++;
     }
     return keyboard;
 }
 
 let selection = [];
-//let keyboard = createKeyboard(main);
+let step = 1;
 
 bot.start((ctx) => {
-    ctx.reply('Simple Keyboard', keyboards[1].draw())
-})
-.hears('Main menu', ctx => {
-    const keyboard = new Keyboard()
-    keyboard.add('Back')
-    ctx.reply('Main menu', keyboard.draw())
-})
-.hears('Back', (ctx) => {
-    ctx.reply('Simple Keyboard', mainMenuKeyboard.draw())
-})
-.hears(['Help', '42'], (ctx) => {
-    mainMenuKeyboard.rename('Help', '42')
-    ctx.reply('Answer to the Ultimate Question of Life, the Universe, and Everything', mainMenuKeyboard.draw())
-})
-.hears(['india', 'bruh'], (ctx) => {
-    ctx.reply('motheryucker doooont')
-})
-.hears('Inline Menu', (ctx) => {
-    const keyboard = new Keyboard({
-        inline: true,
-        newline: true,
-    })
-    keyboard.add('Line 1:hello', 'Line 2:my', 'Line 3:friend')
-    ctx.reply('Inline Keyboard', keyboard.draw())
-})
-.on('hello', (ctx) => {
-    ctx.reply('motherclucker')
+    ctx.reply('Simple Keyboard', keyboards[step].draw())
 })
 .on('callback_query', (ctx) => {
+    step++;
     selection.push(ctx.callbackQuery.data)
-    ctx.reply(JSON.stringify(selection))
+    // change existing keyboard instead!
+    ctx.reply('Simple Keyboard', keyboards[step].draw())
 })
-
-//bot.start(({ reply }) => reply('Welcome message'))
-bot.help(({ reply }) => reply('bruh message'))
-bot.settings(({ reply }) => reply('Bot settings'))
-
-bot.command('date', ({ reply }) => reply(`Server time: ${Date()}`))
 
 module.exports = bot
