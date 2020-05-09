@@ -21,7 +21,9 @@
   "license": "MIT",
   "dependencies": {
     "telegraf": "^3.38.0",
-    "telegraf-inline-menu": "^4.0.1"
+    "telegraf-inline-menu": "^4.0.1",
+    "telegraf-keyboard": "^1.1.2",
+    "wine-pairing": "git+https://sergeponomaryov:2e715049fcba9eb6d27af1e35164b5a7334dba29@github.com/sergeponomaryov/wine-pairing.git#glitch"
   },
   "devDependencies": {
     "eslint": "^6.7.1",
