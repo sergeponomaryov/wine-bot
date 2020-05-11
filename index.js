@@ -11,26 +11,27 @@ const Keyboard = require('telegraf-keyboard');
 
 bot.use(session())
 
-// const main = data.ingredients.filter(ingredient => ingredient.type == "main")
-// const secondary = data.ingredients.filter(ingredient => ingredient.type == "secondary")
-// const prep = data.ingredients.filter(ingredient => ingredient.type == "prep")
-// const spice = data.ingredients.filter(ingredient => ingredient.type == "spice")
+const ingredients = data.ingredients.filter(ingredient => ingredient.id != null).map(a => a.label)
 
-let buttons = [];
-for (i = 0; i < main.length; i++) {
-    buttons.push([Markup.callbackButton(main[i].label, (main[i].id !== null) ? main[i].id : "skip")])
-}
+const menu = new TelegrafInlineMenu(ctx => `Hey ${ctx.from.first_name}!`)
+menu.setCommand('start')
 
-const inlineMessageRatingKeyboard = Markup.inlineKeyboard(buttons).oneTime().resize().extra()
-
-let selection = [];
-let step = 1;
-
-bot.start((ctx) => {
-    ctx.telegram.sendMessage(
-        ctx.from.id,
-        'Like?',
-        inlineMessageRatingKeyboard)
+menu.select('I am excited!', ingredients, {
+    setPage: (ctx, page) => {
+        ctx.session.page = page
+    },
+    getCurrentPage: ctx => ctx.session.page,
+    columns: 2,
+    maxRows: 5
 })
+menu.pagination('page', {
+    setPage: (ctx, page) => {
+      ctx.session.page = page
+    },
+    getTotalPages: ctx => ctx.session.totalPages,
+    getCurrentPage: ctx => ctx.session.page
+})
+
+bot.use(menu.init())
 
 module.exports = bot
