@@ -1,6 +1,7 @@
 const Composer = require('telegraf/composer')
 const session = require('telegraf/session')
 const data = require('wine-pairing/src/data.json')
+const logic = require('wine-pairing/src/logic.js');
 const Telegraf = require('telegraf')
 const { Markup } = Telegraf
 
@@ -32,7 +33,7 @@ const stepTexts = {
 
 bot.start((ctx) => {
     ctx.session.step = 1;
-    ctx.session.selection = [];
+    ctx.session.selections = [];
     return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
 })
 .command('start', (ctx) => {
@@ -43,7 +44,7 @@ bot.start((ctx) => {
     // @todo: process handwritten inputs without emoji
     let obj = data.ingredients.find(x => x.label == ctx.match[0])
     if(obj.hasOwnProperty("id")) {
-        ctx.session.selection.push(obj.id)
+        ctx.session.selections.push(obj.id)
         ctx.session.step++;
         if(ctx.session.step < 5) {
             // show next selection
@@ -51,9 +52,16 @@ bot.start((ctx) => {
         }
         else {
             // show results
+            ctx.session.selections = ctx.session.selections.filter(x => x); // remove null values
+            let results = logic.rankWineTypes(ctx.session.selections);
+            return ctx.reply(JSON.stringify(results))
         }
     }
-    else return ctx.reply('Please select one from the keyboard', keyboards[ctx.session.step])
+    else {
+        // also suggest using /start
+        return ctx.reply('Please select one from the keyboard', keyboards[ctx.session.step])
+    }
 })
+// @todo: add help, contact commands
 
 module.exports = bot
