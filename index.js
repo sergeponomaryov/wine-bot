@@ -6,10 +6,6 @@ const Telegraf = require('telegraf')
 const { Markup } = Telegraf
 
 const bot = new Composer()
-
-const TelegrafInlineMenu = require('telegraf-inline-menu')
-const Keyboard = require('telegraf-keyboard');
-
 bot.use(session())
 
 const main = data.ingredients.filter(ingredient => ingredient.type == "main")
@@ -41,27 +37,31 @@ bot.start((ctx) => {
     return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
 })
 .hears(/.+/, (ctx) => {
-    // @todo: process handwritten inputs without emoji
     let obj = data.ingredients.find(x => x.label == ctx.match[0])
     if(obj.hasOwnProperty("id")) {
         ctx.session.selections.push(obj.id)
         ctx.session.step++;
         if(ctx.session.step < 5) {
             // show next selection
-            return ctx.reply(stepTexts[ctx.session.step] + JSON.stringify(ctx.session.selections), keyboards[ctx.session.step])
+            // JSON.stringify(ctx.session.selections)
+            return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
         }
         else {
             // show results
             ctx.session.selections = ctx.session.selections.filter(x => x); // remove null values
             let results = logic.rankWineTypes(ctx.session.selections);
-            return ctx.reply(JSON.stringify(results))
+            let resp = 'Try these wines 🍷\n\n';
+            results.forEach(result => {
+                resp += `*${result.name}* _like ${result.examples.join(', ')}_\n`;
+                resp += `*${result.match}%* match\n`;
+                if(result.perfectMatches.length) resp += `_Perfect with ${result.perfectMatches.join(' and ')}_\n\n`;
+            });
+            return ctx.replyWithMarkdown(resp)
         }
     }
     else {
-        // also suggest using /start
         return ctx.reply('Please select one from the keyboard', keyboards[ctx.session.step])
     }
 })
-// @todo: add help, contact commands
 
 module.exports = bot
