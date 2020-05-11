@@ -11,26 +11,49 @@ const Keyboard = require('telegraf-keyboard');
 
 bot.use(session())
 
-// const main = data.ingredients.filter(ingredient => ingredient.type == "main")
-// const secondary = data.ingredients.filter(ingredient => ingredient.type == "secondary")
-// const prep = data.ingredients.filter(ingredient => ingredient.type == "prep")
-// const spice = data.ingredients.filter(ingredient => ingredient.type == "spice")
+const main = data.ingredients.filter(ingredient => ingredient.type == "main")
+const secondary = data.ingredients.filter(ingredient => ingredient.type == "secondary")
+const prep = data.ingredients.filter(ingredient => ingredient.type == "prep")
+const spice = data.ingredients.filter(ingredient => ingredient.type == "spice")
 
-let buttons = [];
-for (i = 0; i < main.length; i++) {
-    buttons.push([Markup.callbackButton(main[i].label, (main[i].id !== null) ? main[i].id : "skip")])
+let keyboards = {1: createKeyboard(main), 2: createKeyboard(secondary), 3: createKeyboard(prep), 4: createKeyboard(spice)};
+
+function createKeyboard(ingredients) {
+    let buttons = ingredients.map(x => Markup.callbackButton(x.label))
+    return Markup.keyboard(buttons).oneTime().resize().extra()
 }
 
-const inlineMessageRatingKeyboard = Markup.inlineKeyboard(buttons).oneTime().resize().extra()
-
-let selection = [];
-let step = 1;
+const stepTexts = {
+    1: 'Hi! What are you eating? 😋\nI will find the right food and wine pairing for you 🍷',
+    2: 'What are you having it with? 🤔',
+    3: 'How is it prepared? 👨‍🍳',
+    4: 'Any spices? 🌶'
+}
 
 bot.start((ctx) => {
-    ctx.telegram.sendMessage(
-        ctx.from.id,
-        'Like?',
-        inlineMessageRatingKeyboard)
+    ctx.session.step = 1;
+    ctx.session.selection = [];
+    return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+})
+.command('start', (ctx) => {
+    ctx.session.step = 1;
+    return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+})
+.hears(/.+/, (ctx) => {
+    // @todo: process handwritten inputs without emoji
+    let obj = data.ingredients.find(x => x.label == ctx.match[0])
+    if(obj.hasOwnProperty("id")) {
+        ctx.session.selection.push(obj.id)
+        ctx.session.step++;
+        if(ctx.session.step < 5) {
+            // show next selection
+            return ctx.reply(stepTexts[ctx.session.step] + JSON.stringify(ctx.session.selection), keyboards[ctx.session.step])
+        }
+        else {
+            // show results
+        }
+    }
+    else return ctx.reply('Please select one from the keyboard', keyboards[ctx.session.step])
 })
 
 module.exports = bot
