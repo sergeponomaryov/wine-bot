@@ -30,6 +30,7 @@ const stepTexts = {
 bot.start((ctx) => {
     ctx.session.step = 1;
     ctx.session.selections = [];
+    ctx.session.selectionLabels = [];
     return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
 })
 .command('start', (ctx) => {
@@ -40,6 +41,7 @@ bot.start((ctx) => {
     let obj = data.ingredients.find(x => x.label == ctx.match[0])
     if(obj.hasOwnProperty("id")) {
         ctx.session.selections.push(obj.id)
+        ctx.session.selectionLabels.push(obj.label)
         ctx.session.step++;
         if(ctx.session.step < 5) {
             // show next selection
@@ -56,7 +58,8 @@ bot.start((ctx) => {
                 resp += `*${result.match}%* match\n`;
                 if(result.perfectMatches.length) resp += `_Perfect with ${result.perfectMatches.join(' and ')}_\n\n`;
             });
-            return ctx.replyWithMarkdown(resp)
+            ctx.replyWithMarkdown(resp)
+            return ctx.reply('Was this useful? Share me with your friends 👍', Markup.keyboard(['/start']).oneTime().resize().extra())
         }
     }
     else {
