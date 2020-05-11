@@ -1,7 +1,7 @@
 const Composer = require('telegraf/composer')
 const session = require('telegraf/session')
 const data = require('wine-pairing/src/data.json')
-const logic = require('wine-pairing/src/logic.js');
+const logic = require('wine-pairing/src/logic.js')
 const Telegraf = require('telegraf')
 const { Markup } = Telegraf
 
@@ -48,7 +48,7 @@ bot.start((ctx) => {
         ctx.session.step++;
         if(ctx.session.step < 5) {
             // show next selection
-            return ctx.reply(stepTexts[ctx.session.step] + JSON.stringify(ctx.session.selection), keyboards[ctx.session.step])
+            return ctx.reply(stepTexts[ctx.session.step] + JSON.stringify(ctx.session.selections), keyboards[ctx.session.step])
         }
         else {
             // show results
