@@ -10,7 +10,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
 
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URI, { dbName: 'wine-bot', useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 const Schema = mongoose.Schema;
 const userSchema = new Schema({chatId: Number, name: String, username: String, language: String, lastUsed: Number});
 const User = mongoose.model("User", userSchema);
