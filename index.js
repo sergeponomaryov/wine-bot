@@ -17,6 +17,7 @@ let keyboards = {1: createKeyboard(main), 2: createKeyboard(secondary), 3: creat
 
 function createKeyboard(ingredients) {
     let buttons = ingredients.map(x => Markup.callbackButton(x.label))
+    buttons.push("⏪ Back")
     return Markup.keyboard(buttons).oneTime().resize().extra()
 }
 
@@ -36,14 +37,24 @@ bot.start((ctx) => {
     ctx.session.step = 1;
     return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
 })
-.hears(/.+/, (ctx) => {
-    let obj = data.ingredients.find(x => x.label == ctx.match[0])
-    if(obj.hasOwnProperty("id")) {
-        ctx.session.selections.push(obj.id)
+.command('back', (ctx) => {
+    ctx.session.step--;
+    ctx.session.selections[ctx.session.step - 1] = null; // zero based
+    return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+})
+.hears('⏪ Back', (ctx) => {
+    ctx.session.step--;
+    ctx.session.selections[ctx.session.step - 1] = null; // zero based
+    return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+})
+.on('text', (ctx) => {
+    let obj = data.ingredients.find(x => x.label == ctx.message.text)
+    if(obj && obj.hasOwnProperty("id")) {
+        ctx.session.selections[ctx.session.step - 1] = obj.id; // zero based
         ctx.session.step++;
         if(ctx.session.step < 5) {
             // show next selection
-            // JSON.stringify(ctx.session.selections)
+            //let debug = JSON.stringify(ctx.session.selections)
             return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
         }
         else {
@@ -56,12 +67,13 @@ bot.start((ctx) => {
                 resp += `*${result.match}%* match\n`;
                 if(result.perfectMatches.length) resp += `_Perfect with ${result.perfectMatches.join(' and ')}_\n\n`;
             });
-            ctx.replyWithMarkdown(resp)
-            return ctx.reply('Was this useful? Share me with your friends 👍', Markup.keyboard(['/start']).oneTime().resize().extra())
+            resp += '\nWas this useful? Share me with your friends, or /start over 👍'
+            return ctx.replyWithMarkdown(resp, Markup.removeKeyboard().extra())
+            return ctx.reply('Was this useful? Share me with your friends, or /start over 👍', Markup.keyboard(['/start']).oneTime().resize().extra())
         }
     }
     else {
-        return ctx.reply('Please select one from the keyboard', keyboards[ctx.session.step])
+        return ctx.reply('Please select an option from the keyboard, or try from the /start')
     }
 })
 
