@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "dev": "supervisor -x telegraf index.js",
+    "dev": "supervisor -x node index.js",
     "start": "telegraf",
     "now-start": "telegraf -d ${NOW_URL}",
     "lint": "eslint .",
@@ -20,6 +20,8 @@
   "author": "sergeponomaryov <me@lisik.dev>",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.9.13",
     "telegraf": "^3.38.0",
     "telegraf-inline-menu": "^4.0.1",
     "telegraf-keyboard": "^1.1.2",
