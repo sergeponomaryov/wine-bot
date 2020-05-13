@@ -10,7 +10,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
 
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI, { dbName: 'wine-bot', useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 const Schema = mongoose.Schema;
 const userSchema = new Schema({chatId: Number, name: String, username: String, language: String, lastUsed: Number});
 const User = mongoose.model("User", userSchema);
@@ -48,16 +48,10 @@ function logUser(ctx) {
 }
 
 bot.start((ctx) => {
-    logUser(ctx);
-    ctx.session.step = 1;
-    ctx.session.selections = [];
-    return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+    return start(ctx);
 })
 .command('start', (ctx) => {
-    logUser(ctx);
-    ctx.session.step = 1;
-    ctx.session.selections = [];
-    return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+    return start(ctx);
 })
 .command('help', (ctx) => {
     return ctx.replyWithMarkdown("Wine goes with food. The right pairing will bring out the best in both of them. The wrong one, and you won't taste either. It's not magic, it's chemistry. It has to do with acids and fats, sugars and spices, alcohols and tannins. But you don't have to know all that. I will help you. 😌\nThe way it works is you pick what you're eating, i.e. main dish, side, how it's prepared and spices, and it picks the best wine type match (e.g. Bold Reds, with examples of grapes) based on all of these, with the main ingredient having the most weight of course. It also shows which wine types matched with which ingredients. 🍷\n\nJust try it: /start\n\nI'm also available as a [website](https://wine.lisik.dev) and as an [Android app](https://play.google.com/store/apps/details?id=com.lisik.winepairing).\nIcon made by Freepik from www.flaticon.com\nTo contact the developer: @sergeponomaryov", {"disable_web_page_preview": true})
@@ -101,6 +95,14 @@ function back(ctx) {
     ctx.session.step--;
     ctx.session.selections[ctx.session.step - 1] = null; // zero based
     return ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step])
+}
+
+function start(ctx) {
+    ctx.session.step = 1;
+    ctx.session.selections = [];
+    ctx.reply(stepTexts[ctx.session.step], keyboards[ctx.session.step]);
+    logUser(ctx);
+    return true;
 }
 
 bot.launch()
