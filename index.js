@@ -29,7 +29,7 @@ function createKeyboard(ingredients) {
 }
 
 const stepTexts = {
-    1: 'Hi! What are you eating? 😋\nI will find the right food and wine pairing for you 🍷',
+    1: 'Hi! What are you eating? 😋\nI will find the right food and wine pairing for you 🍷\n(FYI, you can scroll through the buttons)',
     2: 'What are you having it with? 🤔',
     3: 'How is it prepared? 👨‍🍳',
     4: 'Any spices? 🌶'
