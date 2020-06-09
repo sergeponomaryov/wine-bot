@@ -82,7 +82,7 @@ bot.start((ctx) => {
                 resp += `*${result.match}%* match`;
                 if(result.perfectMatches.length) resp += `\n_Perfect with ${result.perfectMatches.join(' and ')}_`;
             });
-            resp += '\n\nWas this useful? Share me with your friends, or /start over 👍'
+            resp += '\n\nWondering where to shop for great wines? 🤔\nTry our sponsors [WineBasket](https://www.kqzyfj.com/click-100146565-10570217) and [Splash Wines](https://www.jdoqocy.com/click-100146565-14043910) 🛒\n\nType /start to do another pairing 🙂'
             return ctx.replyWithMarkdown(resp, Markup.removeKeyboard().extra())
         }
     }
